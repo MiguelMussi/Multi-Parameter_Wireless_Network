@@ -2,6 +2,9 @@ import os
 
 ANTENNAS = 56
 RESULTS = 6
+azimuth_list = [100, 270, 0, 335, 125, 175, 170, 0, 270, 60, 330, 345, 190, 75, 260, 190, 350, 140, 340, 195, 40, 280, 190, 20, 100, 180, 60, 300, 280, 100, 295, 50, 165, 120, 240, 0, 140, 220, 350, 250, 140, 0, 230, 20, 130, 45, 225, 340, 240, 80, 260, 150, 20, 270, 130, 60]
+downtilt_list = [3, 3, 3, 5, 8, 5, 3, 3, 3, 3, 3, 12, 7, 12, 3, 3, 3, 3, 3, 14, 18, 10, 10, 16, 10, 3, 3, 3, 2, 2, 20, 8, 13, 2, 2, 2, 10, 10, 12, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 11, 8, 7, 15, 12, 5]
+
 
 def load_patterns():
     patt = []
@@ -26,8 +29,8 @@ def parse_one_file(content):
             antenna_config.append(line[3])
             antenna_config.append(line[4])
             pat = int(line[5])
-            antenna_config.append(PATTERN[pat][0])
-            antenna_config.append(PATTERN[pat][1])
+            antenna_config.append(PATTERN[pat][0]+azimuth_list[j])
+            antenna_config.append(PATTERN[pat][1]+downtilt_list[j])
         R = lines[ilinea + ANTENNAS][24:]
         assert(R[:2] == "R1")
         R = R[3:-1]
