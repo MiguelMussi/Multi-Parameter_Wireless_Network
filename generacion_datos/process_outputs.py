@@ -1,5 +1,5 @@
 import os
-
+import numpy as np
 ANTENNAS = 56
 RESULTS = 6
 azimuth_list = [100, 270, 0, 335, 125, 175, 170, 0, 270, 60, 330, 345, 190, 75, 260, 190, 350, 140, 340, 195, 40, 280, 190, 20, 100, 180, 60, 300, 280, 100, 295, 50, 165, 120, 240, 0, 140, 220, 350, 250, 140, 0, 230, 20, 130, 45, 225, 340, 240, 80, 260, 150, 20, 270, 130, 60]
@@ -29,8 +29,17 @@ def parse_one_file(content):
             antenna_config.append(line[3])
             antenna_config.append(line[4])
             pat = int(line[5])
-            antenna_config.append(PATTERN[pat][0]+azimuth_list[j])
-            antenna_config.append(PATTERN[pat][1]+downtilt_list[j])
+
+            azimuth = int(PATTERN[pat][0]) + azimuth_list[j]
+            azimuth *= np.PI()/180
+            antenna_config.append(np.cos(azimuth))
+            antenna_config.append(np.sin(azimuth))
+
+            downtilt = int(PATTERN[pat][1]) + downtilt_list[j]
+            downtilt *= np.PI()/180
+            antenna_config.append(np.cos(downtilt))
+            antenna_config.append(np.sin(downtilt))
+
         R = lines[ilinea + ANTENNAS][24:]
         assert(R[:2] == "R1")
         R = R[3:-1]
