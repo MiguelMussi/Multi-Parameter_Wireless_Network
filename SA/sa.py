@@ -163,13 +163,13 @@ def LAHC(state:State,score:float,iters:int):
 	return score,best_indices
 
 def load_predictor():
-	with open("../NN/trained_nn","rb") as f:
+	with open("NN/trained_nn","rb") as f:
 		model = pickle.load(f)
 	return model
 
 def load_patterns():
 	patterns=[]
-	filename = "../attachment_info/patterns.csv"
+	filename = "attachment_info/patterns.csv"
 	with open(filename,"r") as f:
 		head = f.readline().strip()
 		for p in range(17):
@@ -181,7 +181,7 @@ def load_patterns():
 def load_cases():
 	case_parameters:List[List[List[int]]]=[]
 	for case in range(6):
-		filename = "../attachment_info/CASE_" + str(case) + ".csv"
+		filename = "attachment_info/CASE_" + str(case) + ".csv"
 		with open(filename,"r") as f:
 			head = f.readline().strip()
 			este = [f.readline().strip().split(",")[2:] for _ in range(20 * 56)]
@@ -243,7 +243,7 @@ for ran in range(10):
 			#	indices_usados[caso].add(best_indices)
 				f.write('[')
 				f.write(','.join(map(str,best_indices)))
-				if caso!=5 or len(score)<50:
+				if caso!=5 or len(scores)<50:
 					f.write("],\n")
 				else:
 					f.write("]")
