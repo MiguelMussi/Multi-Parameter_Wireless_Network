@@ -10,8 +10,7 @@ def temp_schedule_lineal(t0,tf,pje):
 	return t
 
 def temp_schedule_exp(t0,tf,pje):
-	t = t0 * pow(tf/t0,pje)
-
+	return t0 * pow(tf/t0,pje)
 
 def calc_score(R1:float,R2:float,R3:float):
 	u1=100.-max(R1,R2,R3) 
@@ -97,20 +96,20 @@ class State:
 	def calc_state_score(self):
 		return get_prediction(self.values)
 
-
-
 def sa(state:State,score:float,iters:int):
 	best_score = score
 	best_indices = state.indices.copy()
-	t0 = 50
-	tf = 1
-	loop_iters = 50
-	iters /= loop_iters
+	t0 = 10
+	tf = .1
+	loop_iters = 20
+	iters //= loop_iters
 	for it in range(iters):
-		t = temp_schedule_exp(t0,tf,it/iters)
+		if divmod(it,4095)[1] == 0:
+			print(it,score)
+		temp = temp_schedule_exp(t0,tf,it/iters)
 		for _ in range(loop_iters):
 			new_score = state.next_state()
-			if new_score<score and (score - new_score>20 or exp((new_score-score)/t)) < np.random.uniform():
+			if new_score<score and (score - new_score>20 or np.exp((new_score-score)/temp)) < np.random.uniform():
 				state.undo_next_state()
 				continue
 			score = new_score
@@ -143,7 +142,7 @@ def HC_less(state:State,score:float,iters:int):
 	return score,indices
 
 def LAHC(state:State,score:float,iters:int):
-	MEMORY_SZ = 100
+	MEMORY_SZ = 20
 	best_score = score
 	best_indices = state.indices.copy()
 	score_memory = np.full(MEMORY_SZ,best_score)
@@ -162,7 +161,6 @@ def LAHC(state:State,score:float,iters:int):
 		idx += 1
 		if idx==MEMORY_SZ: idx=0
 	return score,best_indices
-
 
 def load_predictor():
 	with open("../NN/trained_nn","rb") as f:
@@ -195,7 +193,6 @@ def load_cases():
 			case_parameters.append(este)
 	return case_parameters
 
-
 def load_indices_usados():
 	used=[]
 	for caso in range(6):
@@ -215,48 +212,52 @@ def load_indices_usados():
 PATTERNS = load_patterns()
 case_parameters = load_cases()
 model = load_predictor()
-u10 = 77.3685741
-u20 = 83.9079469
+u10 = 77.368574063
+u20 = 83.907946914
 invu10 = 10./(100. - u10)
 invu20 = 1./(100 - u20)
 score_scale = 100./11.
 
+#indices_usados = load_indices_usados()
+random.seed(time.time())
 
-indices_usados = load_indices_usados()
 
 for ran in range(10):
 	filename = "nuevos_indices_" + str(ran) + ".txt"
 	with open(filename,"w") as f:
 		f.write("[")
-		tipo = np.random.randint(4)
 		for caso in range(6):
+			iters = 10000
 			scores = set()
-			while len(scores)<50:
+			while True:
 				state = State(caso,case_parameters[caso])
 				state.gen_random()
 				score = state.calc_state_score()
-				if tipo!=0:
-					score,best_indices = HC(state,score,5000)
-				else:
-					score, best_indices = HC_less(state, score, 5000)
+				score,best_indices = HC(state,score,iters)
 				if score in scores:
 					continue
 				best_indices = tuple(best_indices)
-				if best_indices in indices_usados[caso]: continue
+			#	if best_indices in indices_usados[caso]: continue
 				scores.add(score)
 				print("caso:",caso," len:",len(scores)," score:",score)
-				indices_usados[caso].add(best_indices)
+			#	indices_usados[caso].add(best_indices)
 				f.write('[')
 				f.write(','.join(map(str,best_indices)))
-				f.write("],\n")
+				if caso!=5 or len(score)<50:
+					f.write("],\n")
+				else:
+					f.write("]")
+				if len(scores)==50: break
+			f.flush()
 		f.write(']')
 
-random.seed(time.time())
-for caso in range(6):
-	filename = "indices_usados_" + str(caso) + ".txt"
-	with open(filename,"w") as f:
-		for line in indices_usados[caso]:
-			f.write(' '.join(map(str,line)))
-			f.write('\n')
+
+#
+# for caso in range(6):
+# 	filename = "indices_usados_" + str(caso) + ".txt"
+# 	with open(filename,"w") as f:
+# 		for line in indices_usados[caso]:
+# 			f.write(' '.join(map(str,line)))
+# 			f.write('\n')
 
 
