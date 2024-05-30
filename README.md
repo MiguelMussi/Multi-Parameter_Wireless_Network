@@ -10,4 +10,7 @@
 ### Stack
 [![Stack](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MiguelMussi/Multi-Parameter_Wireless_Network/blob/main/Stack.ipynb)
 
+### Stack2
+[![Stack2](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MiguelMussi/Multi-Parameter_Wireless_Network/blob/main/Stack2.ipynb)
+
 
